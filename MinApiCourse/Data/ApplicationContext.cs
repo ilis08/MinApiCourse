@@ -23,9 +23,9 @@ namespace MinApiCourse.Data
                 new Coupon
                 {
                     Id = 1,
-                    Name = "10OFF",
+                    Name = "20OFF",
                     IsActive = true,
-                    Percent = 10
+                    Percent = 20
                 });
         }
     }
