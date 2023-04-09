@@ -6,6 +6,7 @@ using AutoMapper;
 using MinApiCourse.Data.DTO;
 using Microsoft.EntityFrameworkCore;
 using MinApiCourse.Repository;
+using MinApiCourse.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,35 +33,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("api/coupon/",async (ICouponRepository store) => await store.GetAll());
-
-app.MapGet("api/coupon/{id:int}", async (ICouponRepository store, int id) =>
-{
-    var coupon = await store.GetById(id);
-
-    if (coupon is null)
-    {
-        return Results.NotFound(coupon);
-    }
-
-    return Results.Ok(coupon);
-});
-
-app.MapPost("api/coupon/", async (ICouponRepository store, [FromBody] CouponCreateDTO coupon) =>
-{
-    var createdCoupon = await store.Create(coupon);
-
-    if (createdCoupon is null)
-    {
-        return Results.UnprocessableEntity(createdCoupon);
-    }
-
-    return Results.Created($"/api/coupon/{createdCoupon.Id}", createdCoupon);
-});
+app.RegisterCouponEndpoints();
 
 app.Run();
