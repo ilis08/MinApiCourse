@@ -4,6 +4,8 @@ using MinApiCourse.Data;
 using MinApiCourse.Models;
 using AutoMapper;
 using MinApiCourse.Data.DTO;
+using Microsoft.EntityFrameworkCore;
+using MinApiCourse.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-builder.Services.AddScoped<CouponStore>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+
+builder.Services.AddDbContext<ApplicationContext>(opts =>
+{
+    opts.UseSqlite("Name=databaseSqlite");
+});
 
 var app = builder.Build();
 
@@ -30,11 +37,11 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("api/coupon/", (CouponStore store) => store.GetCouponList());
+app.MapGet("api/coupon/",async (ICouponRepository store) => await store.GetAll());
 
-app.MapGet("api/coupon/{id:int}", (CouponStore store, int id) =>
+app.MapGet("api/coupon/{id:int}", async (ICouponRepository store, int id) =>
 {
-    var coupon = store.GetCoupon(id);
+    var coupon = await store.GetById(id);
 
     if (coupon is null)
     {
@@ -44,9 +51,9 @@ app.MapGet("api/coupon/{id:int}", (CouponStore store, int id) =>
     return Results.Ok(coupon);
 });
 
-app.MapPost("api/coupon/", (CouponStore store, [FromBody] CouponCreateDTO coupon) =>
+app.MapPost("api/coupon/", async (ICouponRepository store, [FromBody] CouponCreateDTO coupon) =>
 {
-    var createdCoupon = store.CreateCoupon(coupon);
+    var createdCoupon = await store.Create(coupon);
 
     if (createdCoupon is null)
     {

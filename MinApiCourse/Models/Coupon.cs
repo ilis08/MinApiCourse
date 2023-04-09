@@ -1,7 +1,10 @@
-﻿namespace MinApiCourse.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MinApiCourse.Models
 {
     public class Coupon
     {
+        [Key]
         public int Id { get; set; }
         public string Name { get; set; }
         public int Percent { get; set; }
